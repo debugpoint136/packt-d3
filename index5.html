@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Page Title</title>
+    <meta charset="utf-8">
+    <script src="/src/d3.min.js"></script>
+    <meta http-equiv="Access-Control-Allow-Origin" content="*"/>
+  </head>
+  <body>
+    <div id="content">
+      <h1>Page Title</h1>
+    </div>
+    <script>
+
+      var data = {};
+
+      d3.json("2010.json", 
+              function(error_2010, json_2010) {
+        if (error_2010) return console.warn(error_2010);
+        json_2010.data.forEach(function(d) {
+          data[d.origin_id] = {
+            export_val_2010: d.export_val,
+            id: d.origin_id
+          };
+        });
+
+        d3.json("2011.json", 
+              function(error_2011, json_2011) {
+                  if (error_2011) return console.warn(error_2011);
+                  json_2011.data.forEach(function(d) {
+                    if (data[d.origin_id]) {
+                      data[d.origin_id]['export_val_2011'] = d.export_val;
+                    };
+                  });
+                  console.log(data);
+              });
+
+        d3.json('http://vizhub.wustl.edu/public/hg19/encode.md', 
+              function(err, res) {
+                res.forEach(function(d) {
+                  if (d.geo){
+                    if ( d.geo[0] ) {
+                      
+
+                    }
+                  }
+                  else {
+                    console.log(d);
+                  }
+                });
+
+             
+          });
+      });
+
+    </script>
+  </body>
+</html>
