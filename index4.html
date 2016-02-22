@@ -10,150 +10,72 @@
       <h1>Page Title</h1>
     </div>
     <script>
-      var flowers = [
-        {
-          "name": "Hydrangia",
-          "latin": "Hydrangea",
-          "light": "Sun",
-          "ease": 3
-        },
-        {
-          "name": "Chrysanthemum",
-          "latin": "Chrysanthemum",
-          "light": "Part Sun",
-          "ease": 1
-        },
-        {
-          "name": "Peony",
-          "latin": "Paeonia",
-          "light": "Part Sun",
-          "ease": -1
-        },
-        {
-          "name": "Orchid",
-          "latin": "Paeonia",
-          "light": "Shade",
-          "ease": -5
-        },
-        {
-          "name": "Fern",
-          "latin": "Dryopteris",
-          "light": "Shade",
-          "ease": 5
-        },
-        {
-          "name": "Rose",
-          "latin": "Rosa",
-          "light": "Sun",
-          "ease": -4
-        },
-        {
-          "name": "Tulip",
-          "latin": "Tulipa",
-          "light": "Sun",
-          "ease": -2
-        },
-        {
-          "name": "Daisy",
-          "latin": "Bellis peressnis",
-          "light": "Part Sun",
-          "ease": 4
-        }
-      ];
 
-        
+    function flatten_metadata_by_geo(type) {
 
+      var geoAll = {};
+      var geoMultiple = {};
+      var geoFlat = {};
+      var geoURL = 'http://vizhub.wustl.edu/public/hg19/encode.md',
+          roadmapURL = 'http://vizhub.wustl.edu/public/hg19/roadmap9_methylC.md';
 
-        var width = window.innerWidth,
-            height = window.innerHeight,
-            padding = Math.floor(width * 0.01);
+            d3.json((type === 'encode' ? geoURL : roadmapURL), 
+                function(err, res) {
+                  res.forEach(function(d) {
+                    if (d.geo) {
+                      var geoName = d.geo[0];
+                      // Re-format the objects 
+                        var obj = {};
 
+                        obj['name'] = d.name;
+                        obj['detail_url'] = d.detail_url;
+                        obj['metadata'] = d.metadata;
+                        obj['type'] = d.type;
+                        obj['public'] = d.public;
+                        obj['url'] = d.url;
 
-        var svg = d3.select('#content').append('svg')
-                    .attr('viewbox', '0 0 ' + width + ' ' + height)
-                    .attr('width', width)
-                    .attr('height', height)
-        function update(new_data) {
+                        // var metadata = d.name.split(' ');
 
-          flowers.map(function(flower) {
-            if (!flower["value"]) {
-              flower["value"] = Math.floor(Math.random() * 100) + 1;
-            return flower;
-           }
-        });
-
-          var flower_domain = d3.extent(new_data, function(d) { 
-            return d.value; 
-          });
-
-          var bar_width = width / new_data.length;
-
-          var bar_height = d3.scale.linear()
-                            .domain(flower_domain)
-                            .range([0, height]);
-
-          var rects = svg.selectAll('rect')
-                        .data(new_data);
-
-          var text = svg.selectAll('text')
-                        .data(new_data, function(d) {
-                            return d['name'];
-                        });
-
-            // On update only ...
-            rects.attr('fill', 'black');
-
-            // On enter ...
-              rects.enter()
-                        .append('rect')
-                        .attr('fill', 'green');
-
-              text.enter()
-                  .append('text')
-                  .attr('fill', 'white');
-
-            // On update AND enter ...
-
-          rects
-              .attr('x', function(d, i) { return i * bar_width; })
-              .attr('y', function(d) { return height - bar_height(d['value']); })
-              .attr('width', bar_width - padding)
-              .attr('height', function(d) {
-                return bar_height(d['value']);
-              });
-
-          text
-              .text(function(d) { return d['value']; })
-              .attr('x', function(d, i) { return i * bar_width + (bar_width - padding) / 2; })
-              .attr('y', height - 12)
-              .attr('font-family', 'sans-serif')
-              .attr('font-size', '12px')
-              .attr('text-anchor', 'middle');
-
-
-          // On exit
-
-          rects.exit().remove();
-          text.exit().remove();
-        }
-
-        update(flowers);
-
-          /*d3.json('http://vizhub.wustl.edu/public/hg19/encode.md', 
-              function(err, res) {
-                res.forEach(function(d) {
-                  if (d.geo){
-                    if ( d.geo[0] ) {
-                      
-
-                    }
-                  }
-                  else {
-                    console.log(d);
-                  }
+                        if (geoFlat[geoName]) {
+                          geoFlat[geoName].push(obj);
+                        } else {
+                          geoFlat[geoName] = [obj];
+                        }
+                    }   
+                  });
+                
                 });
-          });*/
-          
+            return geoFlat;
+      }
+
+      console.dir(flatten_metadata_by_geo('encode'));
+
+
+      function get_institutions_metadata () {
+        var url = 'http://vizhub.wustl.edu/metadata/Institutions';
+
+        d3.json(url, function(err, res) {
+          return res; // this contains the parsed object
+        });
+      }
+
+      function get_assays_metadata () {
+        var url = 'http://vizhub.wustl.edu/metadata/Experimental_assays';
+
+        d3.json(url, function(err, res) {
+          return res; // this contains the parsed object
+        });
+      }
+
+      function get_samples_metadata (Samples) {
+        var url = 'http://vizhub.wustl.edu/metadata/human/Samples';
+
+        d3.json(url, function(err, res) {
+          Samples = res; // this contains the parsed object
+        });
+      }
+
+
     </script>
   </body>
 </html>
